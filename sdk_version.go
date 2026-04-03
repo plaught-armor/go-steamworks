@@ -4,4 +4,4 @@
 package steamworks
 
 // SDKVersion is the Steamworks SDK version this repository targets.
-const SDKVersion = "163"
+const SDKVersion = "164"

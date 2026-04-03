@@ -64,7 +64,7 @@ var (
 	ptrAPI_ISteamApps_BIsTimedTrial                  func(uintptr, uintptr, uintptr) bool
 	ptrAPI_ISteamApps_SetDlcContext                  func(uintptr, AppId_t) bool
 	ptrAPI_ISteamApps_GetNumBetas                    func(uintptr, uintptr, uintptr) int32
-	ptrAPI_ISteamApps_GetBetaInfo                    func(uintptr, int32, uintptr, uintptr, uintptr, int32, uintptr, int32) bool
+	ptrAPI_ISteamApps_GetBetaInfo                    func(uintptr, int32, uintptr, uintptr, uintptr, uintptr, int32, uintptr, int32) bool
 	ptrAPI_ISteamApps_SetActiveBeta                  func(uintptr, string) bool
 
 	// ISteamFriends
@@ -162,9 +162,12 @@ var (
 	ptrAPI_ISteamHTTP_ReleaseHTTPRequest        func(uintptr, HTTPRequestHandle) bool
 
 	// ISteamUGC
-	ptrAPI_SteamUGC                        func() uintptr
-	ptrAPI_ISteamUGC_GetNumSubscribedItems func(uintptr, bool) uint32
-	ptrAPI_ISteamUGC_GetSubscribedItems    func(uintptr, uintptr, uint32, bool) uint32
+	ptrAPI_SteamUGC                             func() uintptr
+	ptrAPI_ISteamUGC_GetNumSubscribedItems      func(uintptr, bool) uint32
+	ptrAPI_ISteamUGC_GetSubscribedItems         func(uintptr, uintptr, uint32, bool) uint32
+	ptrAPI_ISteamUGC_MarkDownloadedItemAsUnused func(uintptr, PublishedFileId_t) bool
+	ptrAPI_ISteamUGC_GetNumDownloadedItems      func(uintptr) uint32
+	ptrAPI_ISteamUGC_GetDownloadedItems         func(uintptr, uintptr, uint32) uint32
 
 	// ISteamInventory
 	ptrAPI_SteamInventory                  func() uintptr
@@ -205,6 +208,14 @@ var (
 	ptrAPI_ISteamInput_GetStringForActionOrigin     func(uintptr, EInputActionOrigin) string
 	ptrAPI_ISteamInput_GetGlyphForActionOrigin      func(uintptr, EInputActionOrigin) string
 	ptrAPI_ISteamInput_GetRemotePlaySessionID       func(uintptr, InputHandle_t) uint32
+
+	// ISteamRemotePlay
+	ptrAPI_SteamRemotePlay                             func() uintptr
+	ptrAPI_ISteamRemotePlay_BSessionRemotePlayTogether func(uintptr, uint32) bool
+	ptrAPI_ISteamRemotePlay_GetSessionGuestID          func(uintptr, uint32) CSteamID
+	ptrAPI_ISteamRemotePlay_GetSmallSessionAvatar      func(uintptr, uint32) int32
+	ptrAPI_ISteamRemotePlay_GetMediumSessionAvatar     func(uintptr, uint32) int32
+	ptrAPI_ISteamRemotePlay_GetLargeSessionAvatar      func(uintptr, uint32) int32
 
 	// ISteamRemoteStorage
 	ptrAPI_SteamRemoteStorage              func() uintptr
@@ -423,7 +434,13 @@ func registerFunctions(lib uintptr) {
 	purego.RegisterLibFunc(&ptrAPI_ReleaseCurrentThreadMemory, lib, flatAPI_ReleaseCurrentThreadMemory)
 
 	// ISteamApps
-	purego.RegisterLibFunc(&ptrAPI_SteamApps, lib, flatAPI_SteamApps)
+	registerOptionalFunc(&ptrAPI_SteamApps, lib, flatAPI_SteamAppsV009)
+	if ptrAPI_SteamApps == nil {
+		registerOptionalFunc(&ptrAPI_SteamApps, lib, flatAPI_SteamApps)
+	}
+	if ptrAPI_SteamApps == nil {
+		registerOptionalFunc(&ptrAPI_SteamApps, lib, flatAPI_SteamAppsUnversioned)
+	}
 	purego.RegisterLibFunc(&ptrAPI_ISteamApps_BIsSubscribed, lib, flatAPI_ISteamApps_BIsSubscribed)
 	purego.RegisterLibFunc(&ptrAPI_ISteamApps_BIsLowViolence, lib, flatAPI_ISteamApps_BIsLowViolence)
 	purego.RegisterLibFunc(&ptrAPI_ISteamApps_BIsCybercafe, lib, flatAPI_ISteamApps_BIsCybercafe)
@@ -556,6 +573,9 @@ func registerFunctions(lib uintptr) {
 	purego.RegisterLibFunc(&ptrAPI_SteamUGC, lib, flatAPI_SteamUGC)
 	purego.RegisterLibFunc(&ptrAPI_ISteamUGC_GetNumSubscribedItems, lib, flatAPI_ISteamUGC_GetNumSubscribedItems)
 	purego.RegisterLibFunc(&ptrAPI_ISteamUGC_GetSubscribedItems, lib, flatAPI_ISteamUGC_GetSubscribedItems)
+	registerOptionalFunc(&ptrAPI_ISteamUGC_MarkDownloadedItemAsUnused, lib, flatAPI_ISteamUGC_MarkDownloadedItemAsUnused)
+	registerOptionalFunc(&ptrAPI_ISteamUGC_GetNumDownloadedItems, lib, flatAPI_ISteamUGC_GetNumDownloadedItems)
+	registerOptionalFunc(&ptrAPI_ISteamUGC_GetDownloadedItems, lib, flatAPI_ISteamUGC_GetDownloadedItems)
 
 	// ISteamInventory
 	purego.RegisterLibFunc(&ptrAPI_SteamInventory, lib, flatAPI_SteamInventory)
@@ -593,6 +613,14 @@ func registerFunctions(lib uintptr) {
 	purego.RegisterLibFunc(&ptrAPI_ISteamInput_GetStringForActionOrigin, lib, flatAPI_ISteamInput_GetStringForActionOrigin)
 	registerOptionalFunc(&ptrAPI_ISteamInput_GetGlyphForActionOrigin, lib, flatAPI_ISteamInput_GetGlyphForActionOrigin)
 	purego.RegisterLibFunc(&ptrAPI_ISteamInput_GetRemotePlaySessionID, lib, flatAPI_ISteamInput_GetRemotePlaySessionID)
+
+	// ISteamRemotePlay
+	registerOptionalFunc(&ptrAPI_SteamRemotePlay, lib, flatAPI_SteamRemotePlay)
+	registerOptionalFunc(&ptrAPI_ISteamRemotePlay_BSessionRemotePlayTogether, lib, flatAPI_ISteamRemotePlay_BSessionRemotePlayTogether)
+	registerOptionalFunc(&ptrAPI_ISteamRemotePlay_GetSessionGuestID, lib, flatAPI_ISteamRemotePlay_GetSessionGuestID)
+	registerOptionalFunc(&ptrAPI_ISteamRemotePlay_GetSmallSessionAvatar, lib, flatAPI_ISteamRemotePlay_GetSmallSessionAvatar)
+	registerOptionalFunc(&ptrAPI_ISteamRemotePlay_GetMediumSessionAvatar, lib, flatAPI_ISteamRemotePlay_GetMediumSessionAvatar)
+	registerOptionalFunc(&ptrAPI_ISteamRemotePlay_GetLargeSessionAvatar, lib, flatAPI_ISteamRemotePlay_GetLargeSessionAvatar)
 
 	// ISteamRemoteStorage
 	purego.RegisterLibFunc(&ptrAPI_SteamRemoteStorage, lib, flatAPI_SteamRemoteStorage)
@@ -836,6 +864,12 @@ func SteamNetworking() ISteamNetworking {
 }
 
 func SteamRemotePlay() ISteamRemotePlay {
+	mustLoad()
+	if ptrAPI_SteamRemotePlay != nil {
+		if ptr := ptrAPI_SteamRemotePlay(); ptr != 0 {
+			return ISteamRemotePlay{ptr: ptr}
+		}
+	}
 	return SteamRemotePlayRaw()
 }
 
@@ -1011,6 +1045,41 @@ func SteamRemotePlayRaw() ISteamRemotePlay {
 	return ISteamRemotePlay{ptr: resolveInterfaceFactory("SteamAPI_SteamRemotePlay_v001")}
 }
 
+func (s ISteamRemotePlay) BSessionRemotePlayTogether(sessionID uint32) bool {
+	if ptrAPI_ISteamRemotePlay_BSessionRemotePlayTogether == nil {
+		return false
+	}
+	return ptrAPI_ISteamRemotePlay_BSessionRemotePlayTogether(s.ptr, sessionID)
+}
+
+func (s ISteamRemotePlay) GetSessionGuestID(sessionID uint32) CSteamID {
+	if ptrAPI_ISteamRemotePlay_GetSessionGuestID == nil {
+		return 0
+	}
+	return ptrAPI_ISteamRemotePlay_GetSessionGuestID(s.ptr, sessionID)
+}
+
+func (s ISteamRemotePlay) GetSmallSessionAvatar(sessionID uint32) int32 {
+	if ptrAPI_ISteamRemotePlay_GetSmallSessionAvatar == nil {
+		return -1
+	}
+	return ptrAPI_ISteamRemotePlay_GetSmallSessionAvatar(s.ptr, sessionID)
+}
+
+func (s ISteamRemotePlay) GetMediumSessionAvatar(sessionID uint32) int32 {
+	if ptrAPI_ISteamRemotePlay_GetMediumSessionAvatar == nil {
+		return -1
+	}
+	return ptrAPI_ISteamRemotePlay_GetMediumSessionAvatar(s.ptr, sessionID)
+}
+
+func (s ISteamRemotePlay) GetLargeSessionAvatar(sessionID uint32) int32 {
+	if ptrAPI_ISteamRemotePlay_GetLargeSessionAvatar == nil {
+		return -1
+	}
+	return ptrAPI_ISteamRemotePlay_GetLargeSessionAvatar(s.ptr, sessionID)
+}
+
 // SteamScreenshotsRaw returns the ISteamScreenshots interface pointer for purego/ffi calls.
 func SteamScreenshotsRaw() ISteamScreenshots {
 	return ISteamScreenshots{ptr: resolveInterfaceFactory("SteamAPI_SteamScreenshots_v003")}
@@ -1038,7 +1107,12 @@ func SteamAPIGameServerRaw() ISteamAPIGameServer {
 
 func SteamApps() ISteamApps {
 	mustLoad()
-	return steamApps(ptrAPI_SteamApps())
+	if ptrAPI_SteamApps != nil {
+		if ptr := ptrAPI_SteamApps(); ptr != 0 {
+			return steamApps(ptr)
+		}
+	}
+	return steamApps(resolveInterfaceFactory("SteamAPI_SteamApps_v009", "SteamAPI_SteamApps_v008", "SteamAPI_SteamApps"))
 }
 
 // SteamAppsV008 returns the v008 apps interface.
@@ -1178,14 +1252,14 @@ func (s steamApps) GetNumBetas() (total int, available int, private int) {
 	return
 }
 
-func (s steamApps) GetBetaInfo(index int) (flags uint32, buildID uint32, name string, description string, ok bool) {
+func (s steamApps) GetBetaInfo(index int) (flags uint32, buildID uint32, lastUpdated uint32, name string, description string, ok bool) {
 	var nameBuf [4096]byte
 	var descBuf [4096]byte
-	ok = ptrAPI_ISteamApps_GetBetaInfo(uintptr(s), int32(index), uintptr(unsafe.Pointer(&flags)), uintptr(unsafe.Pointer(&buildID)), uintptr(unsafe.Pointer(&nameBuf[0])), int32(len(nameBuf)), uintptr(unsafe.Pointer(&descBuf[0])), int32(len(descBuf)))
+	ok = ptrAPI_ISteamApps_GetBetaInfo(uintptr(s), int32(index), uintptr(unsafe.Pointer(&flags)), uintptr(unsafe.Pointer(&buildID)), uintptr(unsafe.Pointer(&lastUpdated)), uintptr(unsafe.Pointer(&nameBuf[0])), int32(len(nameBuf)), uintptr(unsafe.Pointer(&descBuf[0])), int32(len(descBuf)))
 	if !ok {
-		return 0, 0, "", "", false
+		return 0, 0, 0, "", "", false
 	}
-	return flags, buildID, cStringToGo(nameBuf[:]), cStringToGo(descBuf[:]), true
+	return flags, buildID, lastUpdated, cStringToGo(nameBuf[:]), cStringToGo(descBuf[:]), true
 }
 
 func (s steamApps) InstallDLC(appID AppId_t) {
@@ -1624,6 +1698,33 @@ func (s steamUGC) GetSubscribedItems(includeLocallyDisabled bool) []PublishedFil
 	}
 	items := make([]PublishedFileId_t, count)
 	written := ptrAPI_ISteamUGC_GetSubscribedItems(uintptr(s), uintptr(unsafe.Pointer(&items[0])), count, includeLocallyDisabled)
+	return items[:written]
+}
+
+func (s steamUGC) MarkDownloadedItemAsUnused(publishedFileID PublishedFileId_t) bool {
+	if ptrAPI_ISteamUGC_MarkDownloadedItemAsUnused == nil {
+		return false
+	}
+	return ptrAPI_ISteamUGC_MarkDownloadedItemAsUnused(uintptr(s), publishedFileID)
+}
+
+func (s steamUGC) GetNumDownloadedItems() uint32 {
+	if ptrAPI_ISteamUGC_GetNumDownloadedItems == nil {
+		return 0
+	}
+	return ptrAPI_ISteamUGC_GetNumDownloadedItems(uintptr(s))
+}
+
+func (s steamUGC) GetDownloadedItems() []PublishedFileId_t {
+	if ptrAPI_ISteamUGC_GetDownloadedItems == nil {
+		return nil
+	}
+	count := s.GetNumDownloadedItems()
+	if count == 0 {
+		return nil
+	}
+	items := make([]PublishedFileId_t, count)
+	written := ptrAPI_ISteamUGC_GetDownloadedItems(uintptr(s), uintptr(unsafe.Pointer(&items[0])), count)
 	return items[:written]
 }
 
