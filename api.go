@@ -212,7 +212,7 @@ var (
 	// ISteamRemotePlay
 	ptrAPI_SteamRemotePlay                             func() uintptr
 	ptrAPI_ISteamRemotePlay_BSessionRemotePlayTogether func(uintptr, uint32) bool
-	ptrAPI_ISteamRemotePlay_GetSessionGuestID          func(uintptr, uint32) CSteamID
+	ptrAPI_ISteamRemotePlay_GetSessionGuestID          func(uintptr, uint32) uint32
 	ptrAPI_ISteamRemotePlay_GetSmallSessionAvatar      func(uintptr, uint32) int32
 	ptrAPI_ISteamRemotePlay_GetMediumSessionAvatar     func(uintptr, uint32) int32
 	ptrAPI_ISteamRemotePlay_GetLargeSessionAvatar      func(uintptr, uint32) int32
@@ -1052,7 +1052,7 @@ func (s ISteamRemotePlay) BSessionRemotePlayTogether(sessionID uint32) bool {
 	return ptrAPI_ISteamRemotePlay_BSessionRemotePlayTogether(s.ptr, sessionID)
 }
 
-func (s ISteamRemotePlay) GetSessionGuestID(sessionID uint32) CSteamID {
+func (s ISteamRemotePlay) GetSessionGuestID(sessionID uint32) uint32 {
 	if ptrAPI_ISteamRemotePlay_GetSessionGuestID == nil {
 		return 0
 	}

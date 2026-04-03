@@ -1265,7 +1265,7 @@ func signatureExpectations() []signatureExpectation {
 
 		{name: "ptrAPI_SteamRemotePlay", expected: (func() uintptr)(nil)},
 		{name: "ptrAPI_ISteamRemotePlay_BSessionRemotePlayTogether", expected: (func(uintptr, uint32) bool)(nil)},
-		{name: "ptrAPI_ISteamRemotePlay_GetSessionGuestID", expected: (func(uintptr, uint32) CSteamID)(nil)},
+		{name: "ptrAPI_ISteamRemotePlay_GetSessionGuestID", expected: (func(uintptr, uint32) uint32)(nil)},
 		{name: "ptrAPI_ISteamRemotePlay_GetSmallSessionAvatar", expected: (func(uintptr, uint32) int32)(nil)},
 		{name: "ptrAPI_ISteamRemotePlay_GetMediumSessionAvatar", expected: (func(uintptr, uint32) int32)(nil)},
 		{name: "ptrAPI_ISteamRemotePlay_GetLargeSessionAvatar", expected: (func(uintptr, uint32) int32)(nil)},
