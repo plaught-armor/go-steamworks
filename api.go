@@ -1708,7 +1708,7 @@ func (s steamUGC) GetDownloadedItems() []PublishedFileId_t {
 	if ptrAPI_ISteamUGC_GetDownloadedItems == nil {
 		return nil
 	}
-	count := ptrAPI_ISteamUGC_GetNumDownloadedItems(uintptr(s))
+	count := s.GetNumDownloadedItems()
 	if count == 0 {
 		return nil
 	}
