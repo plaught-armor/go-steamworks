@@ -236,6 +236,15 @@ func TestSDKSymbolResolution(t *testing.T) {
 		flatAPI_ISteamGameServer_ForceHeartbeat:             {},
 		flatAPI_ISteamGameServer_InitGameServer:             {},
 		flatAPI_ISteamGameServer_SetHeartbeatInterval:       {},
+		flatAPI_ISteamUGC_MarkDownloadedItemAsUnused:        {},
+		flatAPI_ISteamUGC_GetNumDownloadedItems:             {},
+		flatAPI_ISteamUGC_GetDownloadedItems:                {},
+		flatAPI_SteamRemotePlay:                             {},
+		flatAPI_ISteamRemotePlay_BSessionRemotePlayTogether: {},
+		flatAPI_ISteamRemotePlay_GetSessionGuestID:          {},
+		flatAPI_ISteamRemotePlay_GetSmallSessionAvatar:      {},
+		flatAPI_ISteamRemotePlay_GetMediumSessionAvatar:     {},
+		flatAPI_ISteamRemotePlay_GetLargeSessionAvatar:      {},
 	}
 	for _, symbol := range allFlatAPISymbols() {
 		t.Run(symbol, func(t *testing.T) {
@@ -316,6 +325,15 @@ func TestSDKFunctionExecution(t *testing.T) {
 		"ptrAPI_ISteamGameServer_ForceHeartbeat":             {},
 		"ptrAPI_ISteamGameServer_InitGameServer":             {},
 		"ptrAPI_ISteamGameServer_SetHeartbeatInterval":       {},
+		"ptrAPI_ISteamUGC_MarkDownloadedItemAsUnused":        {},
+		"ptrAPI_ISteamUGC_GetNumDownloadedItems":             {},
+		"ptrAPI_ISteamUGC_GetDownloadedItems":                {},
+		"ptrAPI_SteamRemotePlay":                             {},
+		"ptrAPI_ISteamRemotePlay_BSessionRemotePlayTogether": {},
+		"ptrAPI_ISteamRemotePlay_GetSessionGuestID":          {},
+		"ptrAPI_ISteamRemotePlay_GetSmallSessionAvatar":      {},
+		"ptrAPI_ISteamRemotePlay_GetMediumSessionAvatar":     {},
+		"ptrAPI_ISteamRemotePlay_GetLargeSessionAvatar":      {},
 	}
 
 	actuals := make(map[string]interface{})
@@ -422,6 +440,7 @@ func interfacePointers() map[string]uintptr {
 		"ISteamUGC":                ptrAPI_SteamUGC(),
 		"ISteamInventory":          ptrAPI_SteamInventory(),
 		"ISteamInput":              ptrAPI_SteamInput(),
+		"ISteamRemotePlay":         SteamRemotePlay().Ptr(),
 		"ISteamRemoteStorage":      ptrAPI_SteamRemoteStorage(),
 		"ISteamUser":               ptrAPI_SteamUser(),
 		"ISteamUserStats":          ptrAPI_SteamUserStats(),
@@ -572,6 +591,8 @@ func interfaceNameFor(name string) string {
 		return "ISteamInventory"
 	case strings.HasPrefix(name, "ptrAPI_ISteamInput_"):
 		return "ISteamInput"
+	case strings.HasPrefix(name, "ptrAPI_ISteamRemotePlay_"):
+		return "ISteamRemotePlay"
 	case strings.HasPrefix(name, "ptrAPI_ISteamRemoteStorage_"):
 		return "ISteamRemoteStorage"
 	case strings.HasPrefix(name, "ptrAPI_ISteamUser_"):
@@ -827,6 +848,9 @@ func allRegisteredFunctions() []registeredFunction {
 		{name: "ptrAPI_SteamUGC", value: ptrAPI_SteamUGC},
 		{name: "ptrAPI_ISteamUGC_GetNumSubscribedItems", value: ptrAPI_ISteamUGC_GetNumSubscribedItems},
 		{name: "ptrAPI_ISteamUGC_GetSubscribedItems", value: ptrAPI_ISteamUGC_GetSubscribedItems},
+		{name: "ptrAPI_ISteamUGC_MarkDownloadedItemAsUnused", value: ptrAPI_ISteamUGC_MarkDownloadedItemAsUnused},
+		{name: "ptrAPI_ISteamUGC_GetNumDownloadedItems", value: ptrAPI_ISteamUGC_GetNumDownloadedItems},
+		{name: "ptrAPI_ISteamUGC_GetDownloadedItems", value: ptrAPI_ISteamUGC_GetDownloadedItems},
 
 		{name: "ptrAPI_SteamInventory", value: ptrAPI_SteamInventory},
 		{name: "ptrAPI_ISteamInventory_GetResultStatus", value: ptrAPI_ISteamInventory_GetResultStatus},
@@ -865,6 +889,13 @@ func allRegisteredFunctions() []registeredFunction {
 		{name: "ptrAPI_ISteamInput_GetStringForActionOrigin", value: ptrAPI_ISteamInput_GetStringForActionOrigin},
 		{name: "ptrAPI_ISteamInput_GetGlyphForActionOrigin", value: ptrAPI_ISteamInput_GetGlyphForActionOrigin},
 		{name: "ptrAPI_ISteamInput_GetRemotePlaySessionID", value: ptrAPI_ISteamInput_GetRemotePlaySessionID},
+
+		{name: "ptrAPI_SteamRemotePlay", value: ptrAPI_SteamRemotePlay},
+		{name: "ptrAPI_ISteamRemotePlay_BSessionRemotePlayTogether", value: ptrAPI_ISteamRemotePlay_BSessionRemotePlayTogether},
+		{name: "ptrAPI_ISteamRemotePlay_GetSessionGuestID", value: ptrAPI_ISteamRemotePlay_GetSessionGuestID},
+		{name: "ptrAPI_ISteamRemotePlay_GetSmallSessionAvatar", value: ptrAPI_ISteamRemotePlay_GetSmallSessionAvatar},
+		{name: "ptrAPI_ISteamRemotePlay_GetMediumSessionAvatar", value: ptrAPI_ISteamRemotePlay_GetMediumSessionAvatar},
+		{name: "ptrAPI_ISteamRemotePlay_GetLargeSessionAvatar", value: ptrAPI_ISteamRemotePlay_GetLargeSessionAvatar},
 
 		{name: "ptrAPI_SteamRemoteStorage", value: ptrAPI_SteamRemoteStorage},
 		{name: "ptrAPI_ISteamRemoteStorage_FileWrite", value: ptrAPI_ISteamRemoteStorage_FileWrite},
@@ -1084,7 +1115,7 @@ func signatureExpectations() []signatureExpectation {
 		{name: "ptrAPI_ISteamApps_BIsTimedTrial", expected: (func(uintptr, uintptr, uintptr) bool)(nil)},
 		{name: "ptrAPI_ISteamApps_SetDlcContext", expected: (func(uintptr, AppId_t) bool)(nil)},
 		{name: "ptrAPI_ISteamApps_GetNumBetas", expected: (func(uintptr, uintptr, uintptr) int32)(nil)},
-		{name: "ptrAPI_ISteamApps_GetBetaInfo", expected: (func(uintptr, int32, uintptr, uintptr, uintptr, int32, uintptr, int32) bool)(nil)},
+		{name: "ptrAPI_ISteamApps_GetBetaInfo", expected: (func(uintptr, int32, uintptr, uintptr, uintptr, uintptr, int32, uintptr, int32) bool)(nil)},
 		{name: "ptrAPI_ISteamApps_SetActiveBeta", expected: (func(uintptr, string) bool)(nil)},
 
 		{name: "ptrAPI_SteamFriends", expected: (func() uintptr)(nil)},
@@ -1180,6 +1211,9 @@ func signatureExpectations() []signatureExpectation {
 		{name: "ptrAPI_SteamUGC", expected: (func() uintptr)(nil)},
 		{name: "ptrAPI_ISteamUGC_GetNumSubscribedItems", expected: (func(uintptr, bool) uint32)(nil)},
 		{name: "ptrAPI_ISteamUGC_GetSubscribedItems", expected: (func(uintptr, uintptr, uint32, bool) uint32)(nil)},
+		{name: "ptrAPI_ISteamUGC_MarkDownloadedItemAsUnused", expected: (func(uintptr, PublishedFileId_t) bool)(nil)},
+		{name: "ptrAPI_ISteamUGC_GetNumDownloadedItems", expected: (func(uintptr) uint32)(nil)},
+		{name: "ptrAPI_ISteamUGC_GetDownloadedItems", expected: (func(uintptr, uintptr, uint32) uint32)(nil)},
 
 		{name: "ptrAPI_SteamInventory", expected: (func() uintptr)(nil)},
 		{name: "ptrAPI_ISteamInventory_GetResultStatus", expected: (func(uintptr, SteamInventoryResult_t) int32)(nil)},
@@ -1218,6 +1252,13 @@ func signatureExpectations() []signatureExpectation {
 		{name: "ptrAPI_ISteamInput_GetStringForActionOrigin", expected: (func(uintptr, EInputActionOrigin) string)(nil)},
 		{name: "ptrAPI_ISteamInput_GetGlyphForActionOrigin", expected: (func(uintptr, EInputActionOrigin) string)(nil)},
 		{name: "ptrAPI_ISteamInput_GetRemotePlaySessionID", expected: (func(uintptr, InputHandle_t) uint32)(nil)},
+
+		{name: "ptrAPI_SteamRemotePlay", expected: (func() uintptr)(nil)},
+		{name: "ptrAPI_ISteamRemotePlay_BSessionRemotePlayTogether", expected: (func(uintptr, uint32) bool)(nil)},
+		{name: "ptrAPI_ISteamRemotePlay_GetSessionGuestID", expected: (func(uintptr, uint32) CSteamID)(nil)},
+		{name: "ptrAPI_ISteamRemotePlay_GetSmallSessionAvatar", expected: (func(uintptr, uint32) int32)(nil)},
+		{name: "ptrAPI_ISteamRemotePlay_GetMediumSessionAvatar", expected: (func(uintptr, uint32) int32)(nil)},
+		{name: "ptrAPI_ISteamRemotePlay_GetLargeSessionAvatar", expected: (func(uintptr, uint32) int32)(nil)},
 
 		{name: "ptrAPI_SteamRemoteStorage", expected: (func() uintptr)(nil)},
 		{name: "ptrAPI_ISteamRemoteStorage_FileWrite", expected: (func(uintptr, string, uintptr, int32) bool)(nil)},
@@ -1499,6 +1540,9 @@ func allFlatAPISymbols() []string {
 		flatAPI_SteamUGC,
 		flatAPI_ISteamUGC_GetNumSubscribedItems,
 		flatAPI_ISteamUGC_GetSubscribedItems,
+		flatAPI_ISteamUGC_MarkDownloadedItemAsUnused,
+		flatAPI_ISteamUGC_GetNumDownloadedItems,
+		flatAPI_ISteamUGC_GetDownloadedItems,
 
 		flatAPI_SteamInventory,
 		flatAPI_ISteamInventory_GetResultStatus,
@@ -1537,6 +1581,13 @@ func allFlatAPISymbols() []string {
 		flatAPI_ISteamInput_GetStringForActionOrigin,
 		flatAPI_ISteamInput_GetGlyphForActionOrigin,
 		flatAPI_ISteamInput_GetRemotePlaySessionID,
+
+		flatAPI_SteamRemotePlay,
+		flatAPI_ISteamRemotePlay_BSessionRemotePlayTogether,
+		flatAPI_ISteamRemotePlay_GetSessionGuestID,
+		flatAPI_ISteamRemotePlay_GetSmallSessionAvatar,
+		flatAPI_ISteamRemotePlay_GetMediumSessionAvatar,
+		flatAPI_ISteamRemotePlay_GetLargeSessionAvatar,
 
 		flatAPI_SteamRemoteStorage,
 		flatAPI_ISteamRemoteStorage_FileWrite,

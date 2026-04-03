@@ -261,7 +261,16 @@ const (
 	CallbackIDLobbyDataUpdate CallbackID = 505
 	CallbackIDLobbyChatUpdate CallbackID = 506
 	CallbackIDLobbyChatMsg    CallbackID = 507
+
+	// CallbackIDSteamRemotePlaySessionAvatarLoaded mirrors SteamRemotePlaySessionAvatarLoaded_t::k_iCallback.
+	CallbackIDSteamRemotePlaySessionAvatarLoaded CallbackID = 5704
 )
+
+// SteamRemotePlaySessionAvatarLoaded mirrors Steam's SteamRemotePlaySessionAvatarLoaded_t callback payload.
+type SteamRemotePlaySessionAvatarLoaded struct {
+	SessionID uint32
+	Image     int32
+}
 
 // LobbyDataUpdate mirrors Steam's LobbyDataUpdate_t callback payload.
 type LobbyDataUpdate struct {
@@ -553,7 +562,7 @@ type ISteamApps interface {
 	GetFileDetails(filename string) SteamAPICall_t
 	GetLaunchCommandLine(bufferSize int) string
 	GetNumBetas() (total int, available int, private int)
-	GetBetaInfo(index int) (flags uint32, buildID uint32, name string, description string, ok bool)
+	GetBetaInfo(index int) (flags uint32, buildID uint32, lastUpdated uint32, name string, description string, ok bool)
 	InstallDLC(appID AppId_t)
 	UninstallDLC(appID AppId_t)
 	RequestAppProofOfPurchaseKey(appID AppId_t)
@@ -575,6 +584,9 @@ type ISteamHTTP interface {
 type ISteamUGC interface {
 	GetNumSubscribedItems(includeLocallyDisabled bool) uint32
 	GetSubscribedItems(includeLocallyDisabled bool) []PublishedFileId_t
+	MarkDownloadedItemAsUnused(publishedFileID PublishedFileId_t) bool
+	GetNumDownloadedItems() uint32
+	GetDownloadedItems() []PublishedFileId_t
 }
 
 type ISteamInventory interface {
@@ -1053,9 +1065,12 @@ const (
 	flatAPI_ISteamHTTP_GetHTTPResponseBodyData   = "SteamAPI_ISteamHTTP_GetHTTPResponseBodyData"
 	flatAPI_ISteamHTTP_ReleaseHTTPRequest        = "SteamAPI_ISteamHTTP_ReleaseHTTPRequest"
 
-	flatAPI_SteamUGC                        = "SteamAPI_SteamUGC_v021"
-	flatAPI_ISteamUGC_GetNumSubscribedItems = "SteamAPI_ISteamUGC_GetNumSubscribedItems"
-	flatAPI_ISteamUGC_GetSubscribedItems    = "SteamAPI_ISteamUGC_GetSubscribedItems"
+	flatAPI_SteamUGC                             = "SteamAPI_SteamUGC_v021"
+	flatAPI_ISteamUGC_GetNumSubscribedItems      = "SteamAPI_ISteamUGC_GetNumSubscribedItems"
+	flatAPI_ISteamUGC_GetSubscribedItems         = "SteamAPI_ISteamUGC_GetSubscribedItems"
+	flatAPI_ISteamUGC_MarkDownloadedItemAsUnused = "SteamAPI_ISteamUGC_MarkDownloadedItemAsUnused"
+	flatAPI_ISteamUGC_GetNumDownloadedItems      = "SteamAPI_ISteamUGC_GetNumDownloadedItems"
+	flatAPI_ISteamUGC_GetDownloadedItems         = "SteamAPI_ISteamUGC_GetDownloadedItems"
 
 	flatAPI_SteamInventory                  = "SteamAPI_SteamInventory_v003"
 	flatAPI_ISteamInventory_GetResultStatus = "SteamAPI_ISteamInventory_GetResultStatus"
@@ -1094,6 +1109,13 @@ const (
 	flatAPI_ISteamInput_GetStringForActionOrigin     = "SteamAPI_ISteamInput_GetStringForActionOrigin"
 	flatAPI_ISteamInput_GetGlyphForActionOrigin      = "SteamAPI_ISteamInput_GetGlyphForActionOrigin"
 	flatAPI_ISteamInput_GetRemotePlaySessionID       = "SteamAPI_ISteamInput_GetRemotePlaySessionID"
+
+	flatAPI_SteamRemotePlay                             = "SteamAPI_SteamRemotePlay_v001"
+	flatAPI_ISteamRemotePlay_BSessionRemotePlayTogether = "SteamAPI_ISteamRemotePlay_BSessionRemotePlayTogether"
+	flatAPI_ISteamRemotePlay_GetSessionGuestID          = "SteamAPI_ISteamRemotePlay_GetSessionGuestID"
+	flatAPI_ISteamRemotePlay_GetSmallSessionAvatar      = "SteamAPI_ISteamRemotePlay_GetSmallSessionAvatar"
+	flatAPI_ISteamRemotePlay_GetMediumSessionAvatar     = "SteamAPI_ISteamRemotePlay_GetMediumSessionAvatar"
+	flatAPI_ISteamRemotePlay_GetLargeSessionAvatar      = "SteamAPI_ISteamRemotePlay_GetLargeSessionAvatar"
 
 	flatAPI_SteamRemoteStorage              = "SteamAPI_SteamRemoteStorage_v016"
 	flatAPI_ISteamRemoteStorage_FileWrite   = "SteamAPI_ISteamRemoteStorage_FileWrite"

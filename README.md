@@ -7,7 +7,7 @@ Go bindings covering all Steamworks API interface families, with typed wrappers 
 
 ## Steamworks SDK version
 
-163
+164
 
 > [!NOTE]
 > If newer Steamworks SDK releases add or update symbols that are not yet in these bindings, use the [raw symbol access](#raw-symbol-access) method to call them directly.
@@ -209,7 +209,7 @@ Go accessors. Interfaces are either:
 * `GetFileDetails(filename string) SteamAPICall_t`
 * `GetLaunchCommandLine(bufferSize int) string`
 * `GetNumBetas() (total int, available int, private int)`
-* `GetBetaInfo(index int) (flags uint32, buildID uint32, name string, description string, ok bool)`
+* `GetBetaInfo(index int) (flags uint32, buildID uint32, lastUpdated uint32, name string, description string, ok bool)`
 * `InstallDLC(appID AppId_t)`
 * `UninstallDLC(appID AppId_t)`
 * `RequestAppProofOfPurchaseKey(appID AppId_t)`
@@ -221,6 +221,11 @@ Go accessors. Interfaces are either:
 **ISteamAppTicket** (`SteamAppTicket() ISteamAppTicket`) — handle-backed
 
 * Returned wrapper struct shape: `{ ptr uintptr }` with methods `Ptr() uintptr` and `Valid() bool`.
+* `BSessionRemotePlayTogether(sessionID uint32) bool`
+* `GetSessionGuestID(sessionID uint32) CSteamID`
+* `GetSmallSessionAvatar(sessionID uint32) int32`
+* `GetMediumSessionAvatar(sessionID uint32) int32`
+* `GetLargeSessionAvatar(sessionID uint32) int32`
 
 **ISteamClient** (`SteamClient() ISteamClient`) — handle-backed
 
@@ -562,6 +567,9 @@ Returned structure details:
 
 * `GetNumSubscribedItems(includeLocallyDisabled bool) uint32`
 * `GetSubscribedItems(includeLocallyDisabled bool) []PublishedFileId_t`
+* `MarkDownloadedItemAsUnused(publishedFileID PublishedFileId_t) bool`
+* `GetNumDownloadedItems() uint32`
+* `GetDownloadedItems() []PublishedFileId_t`
 
 **ISteamUser** (`SteamUser() ISteamUser`) — typed wrappers
 
