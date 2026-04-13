@@ -12,7 +12,7 @@ import (
 	"time"
 	"unsafe"
 
-	"github.com/badhex/go-steamworks"
+	"github.com/plaught-armor/go-steamworks"
 )
 
 const appID = 480 // Replace with your own App ID.

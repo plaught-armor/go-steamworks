@@ -1,4 +1,4 @@
-module github.com/badhex/go-steamworks
+module github.com/plaught-armor/go-steamworks
 
 go 1.25.6
 
