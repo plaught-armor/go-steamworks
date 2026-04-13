@@ -538,6 +538,51 @@ type SteamNetworkingMessage struct {
 	_pad1         uint16
 }
 
+// ESteamNetworkingConnectionState mirrors the Steamworks SDK enum.
+type ESteamNetworkingConnectionState int32
+
+const (
+	ESteamNetworkingConnectionState_None                ESteamNetworkingConnectionState = 0
+	ESteamNetworkingConnectionState_Connecting          ESteamNetworkingConnectionState = 1
+	ESteamNetworkingConnectionState_FindingRoute        ESteamNetworkingConnectionState = 2
+	ESteamNetworkingConnectionState_Connected           ESteamNetworkingConnectionState = 3
+	ESteamNetworkingConnectionState_ClosedByPeer        ESteamNetworkingConnectionState = 4
+	ESteamNetworkingConnectionState_ProblemDetectedLocally ESteamNetworkingConnectionState = 5
+)
+
+// SteamNetworkingPOPID is a Point of Presence identifier.
+type SteamNetworkingPOPID uint32
+
+// SteamNetConnectionInfo_t mirrors the Steamworks SDK struct (SDK 1.64).
+// Total size: ~696 bytes.
+type SteamNetConnectionInfo_t struct {
+	IdentityRemote SteamNetworkingIdentity         // 136 bytes
+	UserData       int64                            // 8 bytes
+	ListenSocket   HSteamListenSocket               // 4 bytes
+	AddrRemote     SteamNetworkingIPAddr            // 18 bytes
+	_pad1          uint16                           // 2 bytes
+	IDPOPRemote    SteamNetworkingPOPID             // 4 bytes
+	IDPOPRelay     SteamNetworkingPOPID             // 4 bytes
+	State          ESteamNetworkingConnectionState  // 4 bytes  (offset 176)
+	EndReason      int32                            // 4 bytes
+	EndDebug       [128]byte                        // 128 bytes (k_cchSteamNetworkingMaxConnectionCloseReason)
+	Description    [128]byte                        // 128 bytes (k_cchSteamNetworkingMaxConnectionDescription)
+	Flags          int32                            // 4 bytes
+	_reserved      [63]uint32                       // 252 bytes
+}
+
+// SteamNetConnectionStatusChangedCallback_t is delivered via callback ID 1221
+// when the state of a Steam Networking connection changes.
+type SteamNetConnectionStatusChangedCallback_t struct {
+	Conn     HSteamNetConnection             // 4 bytes
+	_pad     [4]byte                         // 4 bytes alignment
+	Info     SteamNetConnectionInfo_t        // ~696 bytes
+	OldState ESteamNetworkingConnectionState // 4 bytes
+}
+
+// CallbackID for SteamNetConnectionStatusChangedCallback_t.
+const CallbackIDSteamNetConnectionStatusChanged CallbackID = 1221
+
 type ISteamApps interface {
 	BGetDLCDataByIndex(iDLC int) (appID AppId_t, available bool, pchName string, success bool)
 	BIsSubscribed() bool
